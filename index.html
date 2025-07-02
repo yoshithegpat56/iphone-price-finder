@@ -1,443 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>📱 iPhone Price Finder - Pro Edition</title>
-<style>
-  /* Reset & base */
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    margin: 0; padding: 0;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f9ff;
-    color: #1e293b;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  header {
-    width: 100%;
-    padding: 2rem 1rem;
-    background: #1e40af;
-    color: white;
-    text-align: center;
-    font-weight: 700;
-    font-size: 2rem;
-    letter-spacing: 2px;
-    box-shadow: 0 3px 10px rgba(30,64,175,0.5);
-  }
-
-  main {
-    width: 95%;
-    max-width: 900px;
-    margin: 2rem auto 5rem auto;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 25px rgb(30 64 175 / 0.3);
-    padding: 2.5rem 2rem 3rem 2rem;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    font-size: 1.05rem;
-    color: #334155;
-  }
-
-  select, input[type="text"] {
-    width: 100%;
-    padding: 10px 14px;
-    font-size: 1rem;
-    border-radius: 8px;
-    border: 1.8px solid #cbd5e1;
-    transition: border-color 0.3s ease;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    color: #1e293b;
-  }
-  select:hover, select:focus, input[type="text"]:focus {
-    border-color: #3b82f6;
-    outline: none;
-  }
-
-  button {
-    width: 100%;
-    padding: 15px;
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: white;
-    background: #2563eb;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    box-shadow: 0 0 12px #2563ebaa;
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-  }
-  button:hover {
-    background: #1d4ed8;
-    box-shadow: 0 0 18px #1d4ed8cc;
-  }
-  button:disabled {
-    background: #93c5fd;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-
-  #results {
-    margin-top: 2rem;
-    min-height: 160px;
-  }
-  #results h2 {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #1e40af;
-    margin-bottom: 1rem;
-  }
-
-  /* Grid Results */
-  .results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-  }
-  .card {
-    background: #f1f5f9;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgb(30 64 175 / 0.15);
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: box-shadow 0.3s ease;
-  }
-  .card:hover {
-    box-shadow: 0 5px 15px rgb(37 99 235 / 0.4);
-  }
-  .card img {
-    width: 100%;
-    object-fit: contain;
-    max-height: 180px;
-    border-radius: 10px;
-    margin-bottom: 0.8rem;
-  }
-  .card h3 {
-    font-size: 1.15rem;
-    font-weight: 700;
-    margin-bottom: 0.6rem;
-    color: #1e293b;
-  }
-  .price {
-    font-size: 1.25rem;
-    font-weight: 900;
-    color: #2563eb;
-    margin-bottom: 0.5rem;
-  }
-  .rating {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    color: #facc15;
-    font-weight: 700;
-  }
-  .rating span {
-    margin-left: 6px;
-    color: #64748b;
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-  .reviews {
-    font-size: 0.9rem;
-    color: #475569;
-    margin-bottom: 0.6rem;
-  }
-  .link-btn {
-    background: #3b82f6;
-    color: white;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.3s ease;
-    user-select: none;
-  }
-  .link-btn:hover {
-    background: #2563eb;
-  }
-  .legit {
-    font-weight: 700;
-    font-size: 0.95rem;
-    padding: 5px 10px;
-    border-radius: 20px;
-    text-align: center;
-    color: white;
-    width: fit-content;
-    margin-top: auto;
-  }
-  .legit.yes {
-    background: #22c55e; /* green */
-    box-shadow: 0 0 8px #22c55eaa;
-  }
-  .legit.no {
-    background: #ef4444; /* red */
-    box-shadow: 0 0 8px #ef4444aa;
-  }
-
-  /* Loading */
-  #loadingScreen {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background-color: rgba(255,255,255,0.9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-    user-select: none;
-    flex-direction: column;
-    color: #2563eb;
-    font-weight: 700;
-    font-size: 1.6rem;
-    letter-spacing: 1.5px;
-  }
-  #loadingScreen.active {
-    opacity: 1;
-    pointer-events: all;
-  }
-  .spinner {
-    margin-top: 1rem;
-    width: 60px;
-    height: 60px;
-    border: 8px solid #cbd5e1;
-    border-top: 8px solid #2563eb;
-    border-radius: 50%;
-    animation: spin 1.1s linear infinite;
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg);}
-    100% { transform: rotate(360deg);}
-  }
-
-  /* Info below results */
-  #infoBox {
-    margin-top: 3rem;
-    font-size: 0.95rem;
-    color: #64748b;
-    text-align: center;
-  }
-
-  /* Responsive */
-  @media (max-width: 600px) {
-    main {
-      padding: 2rem 1.5rem 2rem 1.5rem;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📱 iPhone Price Finder</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-  }
-</style>
+    header {
+      background: #1e3a8a;
+      color: white;
+      padding: 2rem;
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    main {
+      margin-top: 2rem;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 600px;
+    }
+    label, select {
+      display: block;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      width: 100%;
+    }
+    select, input {
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 1rem;
+      width: 100%;
+      padding: 14px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      font-weight: bold;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    #results {
+      margin-top: 2rem;
+    }
+    .search-count {
+      margin-top: 1rem;
+      color: #334155;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
+  <header>📱 iPhone Price Finder
+  </header>
+  <main>
+    <label for="model">Model</label>
+    <select id="model">
+      <option>iPhone SE</option>
+      <option>iPhone 6</option>
+      <option>iPhone 7</option>
+      <option>iPhone 8</option>
+      <option>iPhone X</option>
+      <option>iPhone XR</option>
+      <option>iPhone XS</option>
+      <option>iPhone 11</option>
+      <option>iPhone 12</option>
+      <option>iPhone 13</option>
+      <option>iPhone 14</option>
+      <option>iPhone 15</option>
+    </select>
 
-<header>
-  📱 iPhone Price Finder - Pro Edition
-</header>
+    <label for="capacity">Storage Capacity</label>
+    <select id="capacity">
+      <option>32GB</option>
+      <option>64GB</option>
+      <option>128GB</option>
+      <option>256GB</option>
+      <option>512GB</option>
+    </select>
 
-<main>
-  <label for="condition">Condition</label>
-  <select id="condition" aria-label="Select condition">
-    <option value="new">New</option>
-    <option value="like new">Like New</option>
-    <option value="very good">Very Good</option>
-    <option value="good">Good</option>
-    <option value="acceptable">Acceptable</option>
-    <option value="used">Used</option>
-    <option value="refurbished">Refurbished</option>
-  </select>
+    <label for="condition">Condition</label>
+    <select id="condition">
+      <option>new</option>
+      <option>like new</option>
+      <option>very good</option>
+      <option>good</option>
+      <option>acceptable</option>
+    </select>
 
-  <label for="model">Model</label>
-  <select id="model" aria-label="Select iPhone model">
-    <option>iPhone SE</option>
-    <option>iPhone 6</option>
-    <option>iPhone 6s</option>
-    <option>iPhone 7</option>
-    <option>iPhone 8</option>
-    <option>iPhone X</option>
-    <option>iPhone XR</option>
-    <option>iPhone XS</option>
-    <option>iPhone 11</option>
-    <option>iPhone 11 Pro</option>
-    <option>iPhone 12</option>
-    <option>iPhone 12 Mini</option>
-    <option>iPhone 12 Pro</option>
-    <option>iPhone 13</option>
-    <option>iPhone 13 Mini</option>
-    <option>iPhone 13 Pro</option>
-    <option>iPhone 14</option>
-    <option>iPhone 14 Plus</option>
-    <option>iPhone 14 Pro</option>
-    <option>iPhone 15</option>
-    <option>iPhone 15 Plus</option>
-    <option>iPhone 15 Pro</option>
-    <option>iPhone 15 Pro Max</option>
-  </select>
+    <button id="searchBtn">🔍 Search Prices</button>
+    <div class="search-count" id="searchCount"></div>
+    <div id="results"></div>
+  </main>
 
-  <label for="capacity">Storage Capacity</label>
-  <select id="capacity" aria-label="Select storage capacity">
-    <option>32GB</option>
-    <option>64GB</option>
-    <option>128GB</option>
-    <option>256GB</option>
-    <option>512GB</option>
-    <option>1TB</option>
-  </select>
+  <script>
+    const searchBtn = document.getElementById("searchBtn");
+    const resultsDiv = document.getElementById("results");
+    const searchCountDiv = document.getElementById("searchCount");
 
-  <label for="carrier">Carrier (optional)</label>
-  <select id="carrier" aria-label="Select carrier (optional)">
-    <option value="">Any</option>
-    <option>Unlocked</option>
-    <option>AT&T</option>
-    <option>Verizon</option>
-    <option>T-Mobile</option>
-    <option>Sprint</option>
-    <option>Other</option>
-  </select>
+    const API_KEY = "185bf221209bbfce95d4a431be8a244ec59b099b086f3a5c0dcfd94ed95b0de7";
+    const MAX_SEARCHES_PER_HOUR = 8;
 
-  <label for="color">Color (optional)</label>
-  <input type="text" id="color" placeholder="e.g. Black, White, Red" aria-label="Input color" />
-
-  <button id="searchBtn" aria-label="Search Prices">🔍 Search Prices</button>
-
-  <div id="loadingScreen" aria-live="assertive" aria-label="Loading Prices">
-    Loading prices...
-    <div class="spinner"></div>
-  </div>
-
-  <div id="results" role="region" aria-live="polite" aria-atomic="true"></div>
-
-  <div id="infoBox" aria-live="polite" aria-atomic="true">
-    Enter your iPhone specs and hit search to see trusted listings from Google Shopping. Listings filtered by legitimacy score and reviews.
-  </div>
-</main>
-
-<script>
-  const API_KEY = "185bf221209bbfce95d4a431be8a244ec59b099b086f3a5c0dcfd94ed95b0de7";
-
-  const loadingScreen = document.getElementById("loadingScreen");
-  const resultsDiv = document.getElementById("results");
-  const searchBtn = document.getElementById("searchBtn");
-
-  function fixLink(url) {
-    if (!url) return '#';
-    if (url.startsWith('http')) return url;
-    return 'https://' + url;
-  }
-
-  // Evaluate if listing is legit based on keywords, reviews & rating (basic AI logic)
-  function isLegit(item) {
-    if (!item.title || !item.extracted_price) return false;
-
-    const badKeywords = ["box only", "no phone", "case only", "parts only", "broken", "cracked", "damaged"];
-    const title = item.title.toLowerCase();
-
-    for (const badWord of badKeywords) {
-      if (title.includes(badWord)) return false;
+    function getSearchCount() {
+      const stored = localStorage.getItem("searchData");
+      if (!stored) return { count: 0, lastHour: Date.now() };
+      const data = JSON.parse(stored);
+      const now = Date.now();
+      if (now - data.lastHour > 3600000) {
+        return { count: 0, lastHour: now };
+      }
+      return data;
     }
 
-    // Some listings may have rating & reviews
-    if (item.rating && item.reviews) {
-      if (item.rating < 3 || item.reviews < 3) return false;
+    function updateSearchCount(newCount, time = Date.now()) {
+      localStorage.setItem("searchData", JSON.stringify({ count: newCount, lastHour: time }));
     }
 
-    return true;
-  }
-
-  // Format price nicely
-  function formatPrice(price) {
-    return "$" + Number(price).toFixed(2);
-  }
-
-  // Build stars string (★ or ☆)
-  function starRating(r) {
-    if (!r) return "No rating";
-    let fullStars = Math.round(r);
-    let stars = "";
-    for (let i=0; i<5; i++) {
-      stars += i < fullStars ? "★" : "☆";
+    function updateSearchUI() {
+      const { count } = getSearchCount();
+      searchCountDiv.textContent = `🌟 Searches this hour: ${count} / ${MAX_SEARCHES_PER_HOUR}`;
     }
-    return stars;
-  }
 
-  searchBtn.addEventListener("click", async () => {
-    const condition = document.getElementById("condition").value.trim();
-    const model = document.getElementById("model").value.trim();
-    const capacity = document.getElementById("capacity").value.trim();
-    const carrier = document.getElementById("carrier").value.trim();
-    const color = document.getElementById("color").value.trim();
+    searchBtn.addEventListener("click", async () => {
+      const { count, lastHour } = getSearchCount();
+      if (count >= MAX_SEARCHES_PER_HOUR) {
+        alert("⛔ You have reached the hourly limit (8 searches). Please wait before trying again.");
+        return;
+      }
 
-    // Compose query string for SerpAPI
-    let query = `${condition} ${model} ${capacity}`;
-    if (carrier) query += ` ${carrier}`;
-    if (color) query += ` ${color}`;
+      const model = document.getElementById("model").value;
+      const capacity = document.getElementById("capacity").value;
+      const condition = document.getElementById("condition").value;
+      const query = `${condition} ${model} ${capacity}`;
 
-    resultsDiv.innerHTML = "";
-    loadingScreen.classList.add("active");
-    searchBtn.disabled = true;
-    searchBtn.setAttribute("aria-busy", "true");
+      resultsDiv.innerHTML = "<p>Loading...</p>";
 
-    try {
-      const url = `https://serpapi.com/search.json?engine=google_sh
+      try {
+        const res = await fetch(`https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${API_KEY}`);
+        const data = await res.json();
 
+        const items = data.shopping_results || [];
+        if (items.length === 0) {
+          resultsDiv.innerHTML = `<p>No results found for "${query}".</p>`;
+          return;
+        }
 
+        const prices = items.map(i => i.extracted_price).filter(Boolean);
+        const avg = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
+        const lowest = Math.min(...prices).toFixed(2);
 
+        const best = items.find(i => i.extracted_price == lowest);
+        const link = best && best.link ? best.link : "#";
 
+        resultsDiv.innerHTML = `
+          <h3>🔎 Results for <strong>${model}</strong> (${condition}, ${capacity})</h3>
+          <p>💸 <strong>Lowest Trusted Price:</strong> $${lowest}</p>
+          <p>📊 <strong>Average Trusted Price:</strong> $${avg}</p>
+          <p>🛒 <strong>Best Listing:</strong> <a href="${link}" target="_blank">${best.title}</a></p>
+        `;
 
-ChatGPT said:
-opping&q=${encodeURIComponent(query)}&hl=en&gl=us&api_key=${API_KEY}`;
-const response = await fetch(url);
-const data = await response.json();
+        updateSearchCount(count + 1, lastHour);
+        updateSearchUI();
+      } catch (e) {
+        console.error(e);
+        resultsDiv.innerHTML = "<p style='color:red;'>❌ Error fetching prices. Try again later.</p>";
+      }
+    });
 
-kotlin
-Copy
-Edit
-  const listings = data.shopping_results || [];
-
-  if (listings.length === 0) {
-    resultsDiv.innerHTML = "<h2>No results found.</h2>";
-    return;
-  }
-
-  const cards = listings.map(item => {
-    const legit = isLegit(item);
-    return `
-      <div class="card">
-        <img src="${item.thumbnail || 'https://via.placeholder.com/300x160?text=No+Image'}" alt="${item.title}" />
-        <h3>${item.title.length > 60 ? item.title.slice(0,57) + "..." : item.title}</h3>
-        <div class="price">${formatPrice(item.extracted_price)}</div>
-        <div class="rating">${starRating(item.rating)} <span>(${item.reviews || 0} reviews)</span></div>
-        <a href="${fixLink(item.link)}" target="_blank" rel="noopener" class="link-btn">View Listing</a>
-        <div class="legit ${legit ? "yes" : "no"}">${legit ? "Trusted ✅" : "Suspicious ⚠️"}</div>
-      </div>
-    `;
-  }).join("");
-
-  resultsDiv.innerHTML = `<h2>Results for "${query}"</h2><div class="results-grid">${cards}</div>`;
-
-} catch (error) {
-  resultsDiv.innerHTML = "<p style='color:red;font-weight:bold;'>❌ Error fetching prices. Please try again later.</p>";
-} finally {
-  loadingScreen.classList.remove("active");
-  searchBtn.disabled = false;
-  searchBtn.setAttribute("aria-busy", "false");
-}
-});
-</script>
-
-</body> </html> ```
+    updateSearchUI();
+  </script>
+</body>
+</html>
