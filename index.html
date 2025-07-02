@@ -127,6 +127,58 @@
     0% { transform: rotate(0deg);}
     100% { transform: rotate(360deg);}
   }
+
+  /* Phone drop animation */
+  #loadingScreen .phone-drop {
+    width: 80px;
+    height: 160px;
+    background: linear-gradient(135deg, #1e40af, #2563eb);
+    border-radius: 20px;
+    position: relative;
+    margin-top: 20px;
+    animation: dropBounce 2s ease-in-out infinite;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    user-select: none;
+    letter-spacing: 2px;
+  }
+  @keyframes dropBounce {
+    0%   { top: -100px; }
+    50%  { top: 0; }
+    70%  { top: -30px; }
+    100% { top: 0; }
+  }
+
+  /* Mini-game styles */
+  #miniGame {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  #miniGame h3 {
+    margin-bottom: 0.5rem;
+  }
+  #gameButton {
+    font-size: 2rem;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    border-radius: 12px;
+    border: 2px solid #2563eb;
+    background: white;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  #gameButton:hover {
+    background-color: #2563eb;
+    color: white;
+  }
+  #miniGame p {
+    font-size: 1rem;
+    margin: 0.3rem 0;
+  }
 </style>
 </head>
 <body>
@@ -134,6 +186,7 @@
 <div id="loadingScreen" aria-live="assertive" aria-label="Loading Prices">
   🔄 Fetching prices, hang tight...
   <div class="spinner"></div>
+  <div class="phone-drop">📱</div>
 </div>
 
 <header>
@@ -192,6 +245,13 @@
 
   <button id="searchBtn" aria-live="polite" aria-busy="false">🔍 Search Prices</button>
 
+  <div id="miniGame" style="display:none;">
+    <h3>🎮 Mini Game: Tap the phone!</h3>
+    <button id="gameButton" aria-label="Tap the phone to score">📱</button>
+    <p>Score: <span id="score">0</span></p>
+    <p><small>Tap as many times as you can before results load!</small></p>
+  </div>
+
   <div id="results" role="region" aria-live="polite" aria-atomic="true"></div>
 </main>
 
@@ -199,13 +259,18 @@
   const API_KEY = "98b23992b8cf4df94774df8b723343df44c945ac763e4f5e57beab84e67dab38";
   const loadingScreen = document.getElementById("loadingScreen");
   const searchBtn = document.getElementById("searchBtn");
+  const miniGame = document.getElementById('miniGame');
+  const gameButton = document.getElementById('gameButton');
+  const scoreEl = document.getElementById('score');
+  const resultsDiv = document.getElementById('results');
 
   // Fix links to absolute URLs
   function fixLink(link) {
     if (!link) return "#";
-    if (link.startsWith("http")) return link;
+    if (link.startsWith("http://") || link.startsWith("https://")) return link;
+    if (link.startsWith("//")) return "https:" + link;
     if (link.startsWith("/")) return "https://google.com" + link;
-    return "https://google.com/search?q=" + encodeURIComponent(link);
+    return "https://" + link;
   }
 
   // AI-like filtering of listings for accuracy
@@ -245,50 +310,65 @@
     return true;
   }
 
+  let gameScore = 0;
+  function incrementScore() {
+    gameScore++;
+    scoreEl.textContent = gameScore;
+  }
+
   searchBtn.addEventListener("click", async () => {
     const condition = document.getElementById('condition').value;
     const model = document.getElementById('model').value;
     const capacity = document.getElementById('capacity').value;
 
     const query = `${condition} ${model} ${capacity}`;
-    const apiURL = `https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${API_KEY}`;
+    const url = `https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${API_KEY}`;
 
+    // Reset UI
+    resultsDiv.innerHTML = "";
     loadingScreen.classList.add("active");
+    miniGame.style.display = "block";
+    gameScore = 0;
+    scoreEl.textContent = gameScore;
     searchBtn.disabled = true;
     searchBtn.setAttribute("aria-busy", "true");
-    document.getElementById('results').innerHTML = "";
+
+    // Add game event listener
+    gameButton.addEventListener('click', incrementScore);
 
     try {
-      // Use CORS proxy if needed, or host on server with CORS enabled
-      const proxyURL = `https://corsproxy.io/?${encodeURIComponent(apiURL)}`;
-      const res = await fetch(proxyURL);
+      const res = await fetch(url);
       const data = await res.json();
-      const rawResults = data.shopping_results || [];
 
-      const results = rawResults.filter(isValidListing);
+      let results = data.shopping_results || [];
+
+      // Filter listings with AI-like logic
+      results = results.filter(isValidListing);
 
       if (results.length === 0) {
-        document.getElementById('results').innerHTML = "<p>❌ No accurate results found.</p>";
+        resultsDiv.innerHTML = `<p>No trusted results found for <strong>${model} (${condition}, ${capacity})</strong>.</p>`;
       } else {
-        const prices = results.map(item => item.extracted_price);
-        const avg = (prices.reduce((a,b) => a + b, 0) / prices.length).toFixed(2);
-        const lowest = Math.min(...prices).toFixed(2);
-        const best = results.find(r => r.extracted_price == lowest);
+        let prices = results.map(item => item.extracted_price).filter(Boolean);
+        let avg = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
+        let lowest = Math.min(...prices).toFixed(2);
+        let best = results.find(r => r.extracted_price == lowest);
 
-        document.getElementById('results').innerHTML = `
+        resultsDiv.innerHTML = `
           <h2>🔎 Results for ${model} (${condition}, ${capacity})</h2>
           <p><strong>💰 Lowest Trusted Price:</strong> $${lowest}</p>
           <p><strong>📊 Average Trusted Price:</strong> $${avg}</p>
           <p><strong>🛒 Best Listing:</strong> <a href="${fixLink(best.link)}" target="_blank" rel="noopener noreferrer">${best.title}</a></p>
         `;
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
-      document.getElementById('results').innerHTML = "<p style='color:red;'>❌ Error fetching prices. Please try again later.</p>";
+      resultsDiv.innerHTML = `<p style="color:red;">❌ Error fetching prices. Please try again later.</p>`;
     } finally {
       loadingScreen.classList.remove("active");
+      miniGame.style.display = "none";
       searchBtn.disabled = false;
       searchBtn.setAttribute("aria-busy", "false");
+      gameButton.removeEventListener('click', incrementScore);
     }
   });
 </script>
