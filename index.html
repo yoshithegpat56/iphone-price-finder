@@ -393,56 +393,51 @@
     searchBtn.setAttribute("aria-busy", "true");
 
     try {
-      const url = `https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${API_KEY}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Network response not OK");
-      const data = await res.json();
+      const url = `https://serpapi.com/search.json?engine=google_sh
 
-      let listings = data.shopping_results || [];
 
-      // Filter legit listings only
-      listings = listings.filter(isLegit);
 
-      if (listings.length === 0) {
-        resultsDiv.innerHTML = `<p style="text-align:center; color:#334155; font-weight:bold;">No trusted listings found for <em>${model} (${condition}, ${capacity}${carrier ? ", " + carrier : ""}${color ? ", " + color : ""})</em>.</p>`;
-      } else {
-        // Calculate average price
-        const prices = listings.map(i => i.extracted_price).filter(Boolean);
-        const avgPrice = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
 
-        resultsDiv.innerHTML = `
-          <h2>🔎 Results for ${model} (${condition}, ${capacity}${carrier ? ", " + carrier : ""}${color ? ", " + color : ""})</h2>
-          <p style="font-weight:600; font-size:1.1rem; color:#2563eb;">Average Trusted Price: <strong>${formatPrice(avgPrice)}</strong> (${listings.length} listings)</p>
-          <div class="results-grid" aria-label="Search results grid">
-            ${listings.map(item => {
-              const legitClass = isLegit(item) ? "yes" : "no";
-              return `
-                <div class="card">
-                  <img src="${item.thumbnail || "https://via.placeholder.com/260x180?text=No+Image"}" alt="Image of ${item.title}" loading="lazy" />
-                  <h3 title="${item.title}">${item.title.length > 40 ? item.title.slice(0, 37) + "..." : item.title}</h3>
-                  <div class="price">${formatPrice(item.extracted_price)}</div>
-                  <div class="rating" aria-label="Rating: ${item.rating || 'No rating'}">
-                    ${starRating(item.rating)}
-                    <span>(${item.reviews || 0} reviews)</span>
-                  </div>
-                  <a href="${fixLink(item.link)}" target="_blank" rel="noopener noreferrer" class="link-btn" aria-label="Open listing for ${item.title}">View Listing</a>
-                  <div class="legit ${legitClass}" aria-label="Listing legitimacy">${legitClass === "yes" ? "Trusted" : "Suspicious"}</div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        `;
-      }
-    } catch (e) {
-      console.error(e);
-      resultsDiv.innerHTML = `<p style="text-align:center; font-weight:bold; color:#ef4444;">❌ Error fetching prices. Please try again later.</p>`;
-    } finally {
-      loadingScreen.classList.remove("active");
-      searchBtn.disabled = false;
-      searchBtn.setAttribute("aria-busy", "false");
-    }
-  });
+
+ChatGPT said:
+opping&q=${encodeURIComponent(query)}&hl=en&gl=us&api_key=${API_KEY}`;
+const response = await fetch(url);
+const data = await response.json();
+
+kotlin
+Copy
+Edit
+  const listings = data.shopping_results || [];
+
+  if (listings.length === 0) {
+    resultsDiv.innerHTML = "<h2>No results found.</h2>";
+    return;
+  }
+
+  const cards = listings.map(item => {
+    const legit = isLegit(item);
+    return `
+      <div class="card">
+        <img src="${item.thumbnail || 'https://via.placeholder.com/300x160?text=No+Image'}" alt="${item.title}" />
+        <h3>${item.title.length > 60 ? item.title.slice(0,57) + "..." : item.title}</h3>
+        <div class="price">${formatPrice(item.extracted_price)}</div>
+        <div class="rating">${starRating(item.rating)} <span>(${item.reviews || 0} reviews)</span></div>
+        <a href="${fixLink(item.link)}" target="_blank" rel="noopener" class="link-btn">View Listing</a>
+        <div class="legit ${legit ? "yes" : "no"}">${legit ? "Trusted ✅" : "Suspicious ⚠️"}</div>
+      </div>
+    `;
+  }).join("");
+
+  resultsDiv.innerHTML = `<h2>Results for "${query}"</h2><div class="results-grid">${cards}</div>`;
+
+} catch (error) {
+  resultsDiv.innerHTML = "<p style='color:red;font-weight:bold;'>❌ Error fetching prices. Please try again later.</p>";
+} finally {
+  loadingScreen.classList.remove("active");
+  searchBtn.disabled = false;
+  searchBtn.setAttribute("aria-busy", "false");
+}
+});
 </script>
 
-</body>
-</html>
+</body> </html> ```
