@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>📱 iPhone Price Finder - Pro</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: #f9fafc;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header {
+    background: linear-gradient(90deg, #2563eb, #1e40af);
+    color: white;
+    padding: 1.5rem;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 3px 10px rgb(30 64 175 / 0.3);
+  }
+  main {
+    margin-top: 2rem;
+    max-width: 900px;
+    width: 90%;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.1);
+  }
+  label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #444;
+  }
+  select {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1.8px solid #ddd;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  select:focus {
+    border-color: #2563eb;
+    outline: none;
+  }
+  button {
+    margin-top: 1.5rem;
+    width: 100%;
+    background-color: #2563eb;
+    color: white;
+    font-size: 1.2rem;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgb(37 99 235 / 0.6);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  button:hover {
+    background-color: #1e40af;
+    box-shadow: 0 6px 20px rgb(30 64 175 / 0.8);
+  }
+  #results {
+    margin-top: 2rem;
+  }
+  #results h2 {
+    margin-bottom: 1rem;
+    color: #1e40af;
+  }
+  #results p {
+    font-size: 1.1rem;
+    margin: 0.4rem 0;
+  }
+  #results a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  #results a:hover {
+    text-decoration: underline;
+  }
+
+  /* Loading Screen */
+  #loadingScreen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(255,255,255,0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #2563eb;
+    font-size: 1.8rem;
+    font-weight: 700;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+  #loadingScreen.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .spinner {
+    margin-top: 1rem;
+    width: 60px;
+    height: 60px;
+    border: 7px solid #cbe0ff;
+    border-top: 7px solid #2563eb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+  }
+</style>
+</head>
+<body>
+
+<div id="loadingScreen" aria-live="assertive" aria-label="Loading Prices">
+  🔄 Fetching prices, hang tight...
+  <div class="spinner"></div>
+</div>
+
+<header>
+  <h1>📱 iPhone Price Finder - Pro</h1>
+  <p>Find the best and average prices for any iPhone model, accurately filtered!</p>
+</header>
+
+<main>
+  <label for="condition">Condition:</label>
+  <select id="condition" aria-label="Select phone condition">
+    <option value="new">New</option>
+    <option value="like new">Like New</option>
+    <option value="very good">Very Good</option>
+    <option value="good">Good</option>
+    <option value="acceptable">Acceptable</option>
+    <option value="used">Used</option>
+    <option value="refurbished">Refurbished</option>
+  </select>
+
+  <label for="model">Model:</label>
+  <select id="model" aria-label="Select iPhone model">
+    <option>iPhone SE</option>
+    <option>iPhone 6</option>
+    <option>iPhone 6s</option>
+    <option>iPhone 7</option>
+    <option>iPhone 8</option>
+    <option>iPhone X</option>
+    <option>iPhone XR</option>
+    <option>iPhone XS</option>
+    <option>iPhone 11</option>
+    <option>iPhone 11 Pro</option>
+    <option>iPhone 12</option>
+    <option>iPhone 12 Mini</option>
+    <option>iPhone 12 Pro</option>
+    <option>iPhone 13</option>
+    <option>iPhone 13 Mini</option>
+    <option>iPhone 13 Pro</option>
+    <option>iPhone 14</option>
+    <option>iPhone 14 Plus</option>
+    <option>iPhone 14 Pro</option>
+    <option>iPhone 15</option>
+    <option>iPhone 15 Plus</option>
+    <option>iPhone 15 Pro</option>
+    <option>iPhone 15 Pro Max</option>
+  </select>
+
+  <label for="capacity">Storage Capacity:</label>
+  <select id="capacity" aria-label="Select storage capacity">
+    <option>32GB</option>
+    <option>64GB</option>
+    <option>128GB</option>
+    <option>256GB</option>
+    <option>512GB</option>
+    <option>1TB</option>
+  </select>
+
+  <button id="searchBtn" aria-live="polite" aria-busy="false">🔍 Search Prices</button>
+
+  <div id="results" role="region" aria-live="polite" aria-atomic="true"></div>
+</main>
+
+<script>
+  const API_KEY = "98b23992b8cf4df94774df8b723343df44c945ac763e4f5e57beab84e67dab38";
+  const loadingScreen = document.getElementById("loadingScreen");
+  const searchBtn = document.getElementById("searchBtn");
+
+  // Fix links to absolute URLs
+  function fixLink(link) {
+    if (!link) return "#";
+    if (link.startsWith("http")) return link;
+    if (link.startsWith("/")) return "https://google.com" + link;
+    return "https://google.com/search?q=" + encodeURIComponent(link);
+  }
+
+  // AI-like filtering of listings for accuracy
+  function isValidListing(item) {
+    if (!item) return false;
+    const title = (item.title || "").toLowerCase();
+    const price = item.extracted_price;
+    const reviews = item.reviews || 0;
+    const rating = item.rating || 0;
+
+    const blacklistedWords = [
+      "box only",
+      "empty box",
+      "no phone",
+      "just box",
+      "screen protector",
+      "charger only",
+      "parts only",
+      "for parts",
+      "broken",
+      "cracked",
+      "not working",
+      "damaged",
+      "repair"
+    ];
+    const containsBlacklist = blacklistedWords.some(w => title.includes(w));
+
+    const lowPrice = price < 40; // suspiciously low
+    const lowReviews = reviews < 3;
+    const lowRating = rating < 3;
+
+    if (containsBlacklist) return false;
+    if (!price || lowPrice) return false;
+    if (lowReviews) return false;
+    if (lowRating) return false;
+
+    return true;
+  }
+
+  searchBtn.addEventListener("click", async () => {
+    const condition = document.getElementById('condition').value;
+    const model = document.getElementById('model').value;
+    const capacity = document.getElementById('capacity').value;
+
+    const query = `${condition} ${model} ${capacity}`;
+    const apiURL = `https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${API_KEY}`;
+
+    loadingScreen.classList.add("active");
+    searchBtn.disabled = true;
+    searchBtn.setAttribute("aria-busy", "true");
+    document.getElementById('results').innerHTML = "";
+
+    try {
+      // Use CORS proxy if needed, or host on server with CORS enabled
+      const proxyURL = `https://corsproxy.io/?${encodeURIComponent(apiURL)}`;
+      const res = await fetch(proxyURL);
+      const data = await res.json();
+      const rawResults = data.shopping_results || [];
+
+      const results = rawResults.filter(isValidListing);
+
+      if (results.length === 0) {
+        document.getElementById('results').innerHTML = "<p>❌ No accurate results found.</p>";
+      } else {
+        const prices = results.map(item => item.extracted_price);
+        const avg = (prices.reduce((a,b) => a + b, 0) / prices.length).toFixed(2);
+        const lowest = Math.min(...prices).toFixed(2);
+        const best = results.find(r => r.extracted_price == lowest);
+
+        document.getElementById('results').innerHTML = `
+          <h2>🔎 Results for ${model} (${condition}, ${capacity})</h2>
+          <p><strong>💰 Lowest Trusted Price:</strong> $${lowest}</p>
+          <p><strong>📊 Average Trusted Price:</strong> $${avg}</p>
+          <p><strong>🛒 Best Listing:</strong> <a href="${fixLink(best.link)}" target="_blank" rel="noopener noreferrer">${best.title}</a></p>
+        `;
+      }
+    } catch(err) {
+      console.error(err);
+      document.getElementById('results').innerHTML = "<p style='color:red;'>❌ Error fetching prices. Please try again later.</p>";
+    } finally {
+      loadingScreen.classList.remove("active");
+      searchBtn.disabled = false;
+      searchBtn.setAttribute("aria-busy", "false");
+    }
+  });
+</script>
+
+</body>
+</html>
