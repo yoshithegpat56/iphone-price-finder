@@ -3,125 +3,171 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>📱 iPhone Price Finder - Pro</title>
+<title>📱 iPhone Price Finder - Premium</title>
 <style>
-  /* Reset and base */
+  /* Reset */
   * {
     box-sizing: border-box;
   }
   body {
+    margin: 0; padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    background: #f9fafc;
-    color: #222;
+    background: linear-gradient(135deg, #1f1c18, #3d2e00);
+    color: #fff;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
+
   header {
-    background: linear-gradient(90deg, #2563eb, #1e40af);
-    color: white;
-    padding: 1.5rem;
     width: 100%;
+    padding: 2rem 1rem;
+    background: linear-gradient(90deg, #bfa136, #f6d365);
+    color: #3d2e00;
     text-align: center;
-    box-shadow: 0 3px 10px rgb(30 64 175 / 0.3);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.7);
+    font-weight: 900;
+    letter-spacing: 2px;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    font-family: 'Georgia', serif;
   }
+
   main {
-    margin-top: 2rem;
-    max-width: 900px;
+    background: #2b2510cc;
+    margin: 3rem auto 5rem auto;
+    max-width: 700px;
     width: 90%;
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgb(0 0 0 / 0.1);
+    border-radius: 15px;
+    box-shadow: 0 0 30px 5px rgba(255, 215, 0, 0.5);
+    padding: 2.5rem 3rem;
+    backdrop-filter: blur(15px);
   }
+
   label {
     display: block;
-    margin-bottom: 1rem;
-    font-weight: 600;
-    color: #444;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #f7e7a3;
+    text-shadow: 0 0 5px #bfa136;
   }
+
   select {
     width: 100%;
-    padding: 0.6rem;
-    border-radius: 6px;
-    border: 1.8px solid #ddd;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-  }
-  select:focus {
-    border-color: #2563eb;
-    outline: none;
-  }
-  button {
-    margin-top: 1.5rem;
-    width: 100%;
-    background-color: #2563eb;
-    color: white;
-    font-size: 1.2rem;
-    padding: 0.8rem;
+    padding: 12px 15px;
+    font-size: 1.1rem;
+    border-radius: 10px;
     border: none;
-    border-radius: 8px;
+    outline: none;
+    background: #41371a;
+    color: #f7e7a3;
+    box-shadow:
+      inset 0 0 10px rgba(255, 215, 0, 0.6),
+      0 4px 8px rgba(255, 215, 0, 0.3);
+    transition: box-shadow 0.3s ease;
     cursor: pointer;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgb(37 99 235 / 0.6);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  select:hover, select:focus {
+    box-shadow:
+      inset 0 0 18px #ffd700,
+      0 6px 12px #ffd700;
+  }
+
+  button {
+    margin-top: 2rem;
+    width: 100%;
+    background: linear-gradient(90deg, #ffd700, #bfa136);
+    color: #3d2e00;
+    font-weight: 900;
+    font-size: 1.3rem;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    box-shadow:
+      0 0 15px #ffd700,
+      0 0 25px #ffd700 inset;
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
   }
   button:hover {
-    background-color: #1e40af;
-    box-shadow: 0 6px 20px rgb(30 64 175 / 0.8);
+    background: linear-gradient(90deg, #fff475, #ffda44);
+    box-shadow:
+      0 0 25px #fff475,
+      0 0 35px #fff475 inset;
   }
+  button:disabled {
+    background: #a18500;
+    cursor: not-allowed;
+    box-shadow: none;
+    color: #5a4a00;
+  }
+
   #results {
-    margin-top: 2rem;
+    margin-top: 3rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.5;
+    font-size: 1.2rem;
+    color: #f7e7a3;
+    min-height: 100px;
+    position: relative;
   }
+
   #results h2 {
+    color: #fff7a3;
+    text-shadow: 0 0 8px #bfa136;
     margin-bottom: 1rem;
-    color: #1e40af;
   }
+
   #results p {
-    font-size: 1.1rem;
-    margin: 0.4rem 0;
+    margin: 0.5rem 0;
   }
+
   #results a {
-    color: #2563eb;
+    color: #ffe066;
+    font-weight: 700;
     text-decoration: none;
-    font-weight: 600;
+    text-shadow: 0 0 6px #bfa136;
   }
   #results a:hover {
     text-decoration: underline;
   }
 
-  /* Loading Screen */
+  /* Loading screen */
   #loadingScreen {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background-color: rgba(255,255,255,0.95);
+    background-color: rgba(43, 37, 16, 0.97);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: #2563eb;
-    font-size: 1.8rem;
-    font-weight: 700;
+    color: #ffd700;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 2px;
     z-index: 9999;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.6s ease;
+    transition: opacity 0.7s ease;
   }
   #loadingScreen.active {
     opacity: 1;
     pointer-events: all;
   }
   .spinner {
-    margin-top: 1rem;
-    width: 60px;
-    height: 60px;
-    border: 7px solid #cbe0ff;
-    border-top: 7px solid #2563eb;
+    margin-top: 1.5rem;
+    width: 70px;
+    height: 70px;
+    border: 8px solid #bfa136;
+    border-top: 8px solid #fff5b1;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 1.2s linear infinite;
+    filter: drop-shadow(0 0 3px #ffd700);
   }
   @keyframes spin {
     0% { transform: rotate(0deg);}
@@ -130,68 +176,75 @@
 
   /* Phone drop animation */
   #loadingScreen .phone-drop {
-    width: 80px;
-    height: 160px;
-    background: linear-gradient(135deg, #1e40af, #2563eb);
-    border-radius: 20px;
+    width: 90px;
+    height: 180px;
+    background: linear-gradient(135deg, #bfa136, #ffd700);
+    border-radius: 25px;
     position: relative;
-    margin-top: 20px;
-    animation: dropBounce 2s ease-in-out infinite;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    margin-top: 30px;
+    animation: dropBounce 2.2s ease-in-out infinite;
+    box-shadow:
+      0 0 15px #ffd700,
+      0 6px 15px #bfa136 inset;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.5rem;
+    color: #5a4500;
+    font-weight: 900;
+    font-size: 2rem;
     user-select: none;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px #fff2aa;
   }
   @keyframes dropBounce {
-    0%   { top: -100px; }
+    0%   { top: -120px; }
     50%  { top: 0; }
-    70%  { top: -30px; }
+    70%  { top: -40px; }
     100% { top: 0; }
   }
 
-  /* Mini-game styles */
-  #miniGame {
-    margin-top: 2rem;
+  /* Cash flying animation */
+  .cash-fly {
+    position: absolute;
+    width: 25px;
+    height: 15px;
+    background: linear-gradient(90deg, #fff475, #bfa136);
+    border-radius: 5px;
+    box-shadow: 0 0 10px #ffd700;
+    color: #3d2e00;
+    font-weight: 900;
+    font-size: 12px;
+    line-height: 15px;
     text-align: center;
+    user-select: none;
+    animation: flyUp 1.6s ease forwards;
+    pointer-events: none;
+    z-index: 10000;
   }
-  #miniGame h3 {
-    margin-bottom: 0.5rem;
+
+  @keyframes flyUp {
+    0% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-180px) translateX(60px) scale(0.4);
+      opacity: 0;
+    }
   }
-  #gameButton {
-    font-size: 2rem;
-    padding: 1rem 2rem;
-    cursor: pointer;
-    border-radius: 12px;
-    border: 2px solid #2563eb;
-    background: white;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  #gameButton:hover {
-    background-color: #2563eb;
-    color: white;
-  }
-  #miniGame p {
-    font-size: 1rem;
-    margin: 0.3rem 0;
-  }
+
 </style>
 </head>
 <body>
 
 <div id="loadingScreen" aria-live="assertive" aria-label="Loading Prices">
-  🔄 Fetching prices, hang tight...
+  ⏳ Loading prices...
   <div class="spinner"></div>
   <div class="phone-drop">📱</div>
 </div>
 
 <header>
-  <h1>📱 iPhone Price Finder - Pro</h1>
-  <p>Find the best and average prices for any iPhone model, accurately filtered!</p>
+  📱 IPHONE PRICE FINDER - PREMIUM
 </header>
 
 <main>
@@ -243,77 +296,51 @@
     <option>1TB</option>
   </select>
 
-  <button id="searchBtn" aria-live="polite" aria-busy="false">🔍 Search Prices</button>
+  <button id="searchBtn" aria-live="polite" aria-busy="false" aria-label="Search prices for selected iPhone">🔍 Search Prices</button>
 
-  <div id="miniGame" style="display:none;">
-    <h3>🎮 Mini Game: Tap the phone!</h3>
-    <button id="gameButton" aria-label="Tap the phone to score">📱</button>
-    <p>Score: <span id="score">0</span></p>
-    <p><small>Tap as many times as you can before results load!</small></p>
-  </div>
-
-  <div id="results" role="region" aria-live="polite" aria-atomic="true"></div>
+  <section id="results" role="region" aria-live="polite" aria-atomic="true"></section>
 </main>
 
 <script>
   const API_KEY = "98b23992b8cf4df94774df8b723343df44c945ac763e4f5e57beab84e67dab38";
   const loadingScreen = document.getElementById("loadingScreen");
+  const resultsDiv = document.getElementById("results");
   const searchBtn = document.getElementById("searchBtn");
-  const miniGame = document.getElementById('miniGame');
-  const gameButton = document.getElementById('gameButton');
-  const scoreEl = document.getElementById('score');
-  const resultsDiv = document.getElementById('results');
 
-  // Fix links to absolute URLs
-  function fixLink(link) {
-    if (!link) return "#";
-    if (link.startsWith("http://") || link.startsWith("https://")) return link;
-    if (link.startsWith("//")) return "https:" + link;
-    if (link.startsWith("/")) return "https://google.com" + link;
-    return "https://" + link;
+  function createCashFlyAnimation() {
+    for(let i=0; i<12; i++) {
+      const cash = document.createElement("div");
+      cash.textContent = "$";
+      cash.classList.add("cash-fly");
+      cash.style.left = (Math.random() * window.innerWidth) + "px";
+      cash.style.top = (window.innerHeight - 60 + Math.random()*20) + "px";
+      cash.style.animationDelay = (i * 0.12) + "s";
+      document.body.appendChild(cash);
+
+      cash.addEventListener("animationend", () => {
+        cash.remove();
+      });
+    }
   }
 
-  // AI-like filtering of listings for accuracy
+  // Simple filter to remove suspicious listings based on title and price (improve this as needed)
   function isValidListing(item) {
-    if (!item) return false;
-    const title = (item.title || "").toLowerCase();
-    const price = item.extracted_price;
-    const reviews = item.reviews || 0;
-    const rating = item.rating || 0;
-
-    const blacklistedWords = [
-      "box only",
-      "empty box",
-      "no phone",
-      "just box",
-      "screen protector",
-      "charger only",
-      "parts only",
-      "for parts",
-      "broken",
-      "cracked",
-      "not working",
-      "damaged",
-      "repair"
-    ];
-    const containsBlacklist = blacklistedWords.some(w => title.includes(w));
-
-    const lowPrice = price < 40; // suspiciously low
-    const lowReviews = reviews < 3;
-    const lowRating = rating < 3;
-
-    if (containsBlacklist) return false;
-    if (!price || lowPrice) return false;
-    if (lowReviews) return false;
-    if (lowRating) return false;
-
+    if(!item.title || !item.extracted_price) return false;
+    const lowPriceThreshold = 50; // ignore prices lower than $50 as unrealistic for iPhones (adjustable)
+    const suspiciousWords = ["box only", "empty box", "case", "cover", "broken", "parts", "for parts"];
+    let title = item.title.toLowerCase();
+    if(item.extracted_price < lowPriceThreshold) return false;
+    for(let word of suspiciousWords) {
+      if(title.includes(word)) return false;
+    }
     return true;
   }
 
-  let gameScore = 0;
-  function incrementScore() {
-    gameScore++;
-    scoreEl.textContent = gameScore;
+  // Fix SerpAPI links that sometimes are relative or malformed
+  function fixLink(url) {
+    if(!url) return "#";
+    if(url.startsWith("http")) return url;
+    return "https://www.google.com" + (url.startsWith("/") ? "" : "/") + url;
   }
 
   searchBtn.addEventListener("click", async () => {
@@ -324,29 +351,20 @@
     const query = `${condition} ${model} ${capacity}`;
     const url = `https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${API_KEY}`;
 
-    // Reset UI
     resultsDiv.innerHTML = "";
     loadingScreen.classList.add("active");
-    miniGame.style.display = "block";
-    gameScore = 0;
-    scoreEl.textContent = gameScore;
     searchBtn.disabled = true;
     searchBtn.setAttribute("aria-busy", "true");
-
-    // Add game event listener
-    gameButton.addEventListener('click', incrementScore);
 
     try {
       const res = await fetch(url);
       const data = await res.json();
 
       let results = data.shopping_results || [];
-
-      // Filter listings with AI-like logic
       results = results.filter(isValidListing);
 
-      if (results.length === 0) {
-        resultsDiv.innerHTML = `<p>No trusted results found for <strong>${model} (${condition}, ${capacity})</strong>.</p>`;
+      if(results.length === 0) {
+        resultsDiv.innerHTML = `<p style="color:#ffd700;">No trusted results found for <strong>${model} (${condition}, ${capacity})</strong>.</p>`;
       } else {
         let prices = results.map(item => item.extracted_price).filter(Boolean);
         let avg = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
@@ -359,16 +377,16 @@
           <p><strong>📊 Average Trusted Price:</strong> $${avg}</p>
           <p><strong>🛒 Best Listing:</strong> <a href="${fixLink(best.link)}" target="_blank" rel="noopener noreferrer">${best.title}</a></p>
         `;
+
+        createCashFlyAnimation();
       }
     } catch (err) {
+      resultsDiv.innerHTML = `<p style="color:#ff4c4c;">❌ Error fetching prices. Please try again later.</p>`;
       console.error(err);
-      resultsDiv.innerHTML = `<p style="color:red;">❌ Error fetching prices. Please try again later.</p>`;
     } finally {
       loadingScreen.classList.remove("active");
-      miniGame.style.display = "none";
       searchBtn.disabled = false;
       searchBtn.setAttribute("aria-busy", "false");
-      gameButton.removeEventListener('click', incrementScore);
     }
   });
 </script>
