@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📱 iPhone Price Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📱 iPhone Price Finder - eBay Edition v1.0</title>
   <style>
-    * { box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f4f8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9fafb;
+      color: #1f2937;
       margin: 0;
       padding: 0;
-      color: #1e293b;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -19,67 +18,76 @@
     header {
       background: #1e3a8a;
       color: white;
-      padding: 2rem;
+      padding: 1.5rem;
+      text-align: center;
       font-size: 2rem;
       font-weight: bold;
-      text-align: center;
       width: 100%;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    #version {
+      text-align: center;
+      margin-top: 0.25rem;
+      font-size: 0.85rem;
+      color: #cbd5e1;
     }
     main {
-      margin-top: 2rem;
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 600px;
-    }
-    label, select {
-      display: block;
-      margin-bottom: 1rem;
-      font-weight: 600;
       width: 100%;
+      max-width: 600px;
+      background: white;
+      margin: 2rem auto;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
-    select, input {
+    select, input, button {
+      width: 100%;
       padding: 10px;
-      font-size: 1rem;
+      margin: 0.5rem 0;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      font-size: 1rem;
     }
     button {
-      margin-top: 1rem;
-      width: 100%;
-      padding: 14px;
       background: #2563eb;
       color: white;
-      border: none;
       font-weight: bold;
-      font-size: 1.1rem;
-      border-radius: 8px;
       cursor: pointer;
     }
-    button:hover {
-      background: #1d4ed8;
-    }
     #results {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
     }
-    .search-count {
+    .card {
+      background: #f3f4f6;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .card a {
+      display: inline-block;
+      margin-top: 0.5rem;
+      color: #2563eb;
+      text-decoration: underline;
+    }
+    #counter {
+      text-align: center;
       margin-top: 1rem;
-      color: #334155;
-      font-weight: 600;
+      font-size: 0.95rem;
+      color: #6b7280;
     }
   </style>
 </head>
 <body>
-  <header>📱 iPhone Price Finder
+  <header>
+    📱 iPhone Price Finder - eBay Edition
+    <div id="version">Version 1.0</div>
   </header>
   <main>
-    <label for="model">Model</label>
+    <label for="model">iPhone Model</label>
     <select id="model">
       <option>iPhone SE</option>
       <option>iPhone 6</option>
+      <option>iPhone 6s</option>
       <option>iPhone 7</option>
       <option>iPhone 8</option>
       <option>iPhone X</option>
@@ -92,6 +100,13 @@
       <option>iPhone 15</option>
     </select>
 
+    <label for="condition">Condition</label>
+    <select id="condition">
+      <option>New</option>
+      <option>Used</option>
+      <option>Refurbished</option>
+    </select>
+
     <label for="capacity">Storage Capacity</label>
     <select id="capacity">
       <option>32GB</option>
@@ -101,95 +116,99 @@
       <option>512GB</option>
     </select>
 
-    <label for="condition">Condition</label>
-    <select id="condition">
-      <option>new</option>
-      <option>like new</option>
-      <option>very good</option>
-      <option>good</option>
-      <option>acceptable</option>
-    </select>
+    <button id="searchBtn">🔍 Search on eBay</button>
 
-    <button id="searchBtn">🔍 Search Prices</button>
-    <div class="search-count" id="searchCount"></div>
+    <div id="counter"></div>
     <div id="results"></div>
   </main>
 
   <script>
     const searchBtn = document.getElementById("searchBtn");
     const resultsDiv = document.getElementById("results");
-    const searchCountDiv = document.getElementById("searchCount");
-
-    const API_KEY = "185bf221209bbfce95d4a431be8a244ec59b099b086f3a5c0dcfd94ed95b0de7";
-    const MAX_SEARCHES_PER_HOUR = 8;
+    const counterDiv = document.getElementById("counter");
 
     function getSearchCount() {
-      const stored = localStorage.getItem("searchData");
-      if (!stored) return { count: 0, lastHour: Date.now() };
-      const data = JSON.parse(stored);
+      const data = JSON.parse(localStorage.getItem("ebaySearchLogs")) || [];
       const now = Date.now();
-      if (now - data.lastHour > 3600000) {
-        return { count: 0, lastHour: now };
-      }
-      return data;
+      const oneHourAgo = now - 3600000;
+      const filtered = data.filter(ts => ts > oneHourAgo);
+      return { count: filtered.length, updated: filtered };
     }
 
-    function updateSearchCount(newCount, time = Date.now()) {
-      localStorage.setItem("searchData", JSON.stringify({ count: newCount, lastHour: time }));
+    function updateSearchLog() {
+      const { updated } = getSearchCount();
+      updated.push(Date.now());
+      localStorage.setItem("ebaySearchLogs", JSON.stringify(updated));
     }
 
-    function updateSearchUI() {
+    function updateCounterDisplay() {
       const { count } = getSearchCount();
-      searchCountDiv.textContent = `🌟 Searches this hour: ${count} / ${MAX_SEARCHES_PER_HOUR}`;
+      counterDiv.innerText = `🕒 eBay Searches this hour: ${count}/8`;
+    }
+
+    async function fetchEbayResults(query) {
+      const endpoint = `https://corsproxy.io/?https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search?q=${encodeURIComponent(query)}`;
+      try {
+        const response = await fetch(endpoint, {
+          headers: {
+            'Authorization': 'Bearer v^1.1#i^1#f^0#r^0#I^3#p^3#t^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',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+        return data.itemSummaries || [];
+      } catch (err) {
+        throw new Error("eBay API Error: " + err.message);
+      }
     }
 
     searchBtn.addEventListener("click", async () => {
-      const { count, lastHour } = getSearchCount();
-      if (count >= MAX_SEARCHES_PER_HOUR) {
-        alert("⛔ You have reached the hourly limit (8 searches). Please wait before trying again.");
+      const { count } = getSearchCount();
+      if (count >= 8) {
+        alert("🚫 Limit reached: 8 eBay searches per hour.");
         return;
       }
 
       const model = document.getElementById("model").value;
-      const capacity = document.getElementById("capacity").value;
       const condition = document.getElementById("condition").value;
-      const query = `${condition} ${model} ${capacity}`;
+      const capacity = document.getElementById("capacity").value;
+      const query = `${model} ${capacity} ${condition}`;
 
-      resultsDiv.innerHTML = "<p>Loading...</p>";
+      resultsDiv.innerHTML = "<p>🔄 Searching eBay...</p>";
 
       try {
-        const res = await fetch(`https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${API_KEY}`);
-        const data = await res.json();
+        const items = await fetchEbayResults(query);
 
-        const items = data.shopping_results || [];
         if (items.length === 0) {
-          resultsDiv.innerHTML = `<p>No results found for "${query}".</p>`;
+          resultsDiv.innerHTML = `<p>❌ No eBay results for "${query}".</p>`;
           return;
         }
 
-        const prices = items.map(i => i.extracted_price).filter(Boolean);
-        const avg = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
-        const lowest = Math.min(...prices).toFixed(2);
-
-        const best = items.find(i => i.extracted_price == lowest);
-        const link = best && best.link ? best.link : "#";
+        const validItems = items.filter(item => item.price && item.itemWebUrl);
+        const prices = validItems.map(item => item.price.value);
+        const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+        const top = validItems[0];
 
         resultsDiv.innerHTML = `
-          <h3>🔎 Results for <strong>${model}</strong> (${condition}, ${capacity})</h3>
-          <p>💸 <strong>Lowest Trusted Price:</strong> $${lowest}</p>
-          <p>📊 <strong>Average Trusted Price:</strong> $${avg}</p>
-          <p>🛒 <strong>Best Listing:</strong> <a href="${link}" target="_blank">${best.title}</a></p>
+          <div class="card">
+            <h3>💰 eBay Avg Price: $${avgPrice.toFixed(2)}</h3>
+            <p>📦 Top Listing: <strong>${top.title}</strong></p>
+            <p>Price: $${top.price.value}</p>
+            <a href="${top.itemWebUrl}" target="_blank">View on eBay 🔗</a>
+          </div>
         `;
 
-        updateSearchCount(count + 1, lastHour);
-        updateSearchUI();
-      } catch (e) {
-        console.error(e);
-        resultsDiv.innerHTML = "<p style='color:red;'>❌ Error fetching prices. Try again later.</p>";
+        updateSearchLog();
+        updateCounterDisplay();
+      } catch (error) {
+        resultsDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
       }
     });
 
-    updateSearchUI();
+    updateCounterDisplay();
   </script>
 </body>
 </html>
