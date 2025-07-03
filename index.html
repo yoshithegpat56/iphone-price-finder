@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>📱 iPhone Price Finder - eBay Edition v1.2</title>
   <style>
     body {
@@ -147,7 +147,7 @@
     }
 
     async function fetchEbayResults(query) {
-      const endpoint = `/api/search?q=${encodeURIComponent(query)}`;
+      const endpoint = `iphone-price-finder-git-main-yoshis-projects-f8509d95.vercel.app/search?q=${encodeURIComponent(query)}`;
       try {
         const response = await fetch(endpoint);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -191,7 +191,7 @@
             <h3>💰 eBay Avg Price: $${avgPrice.toFixed(2)}</h3>
             <p>📦 Top Listing: <strong>${top.title}</strong></p>
             <p>Price: $${top.price.value}</p>
-            <a href="${top.itemWebUrl}" target="_blank">View on eBay 🔗</a>
+            <a href="${top.itemWebUrl}" target="_blank" rel="noopener">View on eBay 🔗</a>
           </div>
         `;
 
